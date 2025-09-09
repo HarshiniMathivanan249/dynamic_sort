@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Sortable Table (Very Beginner jQuery)</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    table {
+      width: 60%;
+      border-collapse: collapse;
+      margin: 20px auto;
+      font-family: Arial, sans-serif;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #eee;
+      cursor: pointer;
+    }
+    .asc::after { content: " ↑"; }
+    .desc::after { content: " ↓"; }
+  </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">Employee Table (Click headers to sort)</h2>
+
+<table id="myTable">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Department</th>
+      <th>Salary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Harshini</td><td>IT</td><td>45000</td></tr>
+    <tr><td>Arun</td><td>HR</td><td>30000</td></tr>
+    <tr><td>Kavya</td><td>Finance</td><td>50000</td></tr>
+    <tr><td>Praveen</td><td>IT</td><td>42000</td></tr>
+    <tr><td>Divya</td><td>Sales</td><td>38000</td></tr>
+  </tbody>
+</table>
+
+<script>
+$(document).ready(function() {
+  $("#myTable th").click(function() {
+    var column = $(this).index();
+    var asc = !$(this).hasClass("asc");
+    $("#myTable th").removeClass("asc desc");
+    var rows = $("#myTable tbody tr");
+    for (var i = 0; i < rows.length; i++) {
+      for (var j = i + 1; j < rows.length; j++) {
+        var cell1 = $(rows[i]).children("td").eq(column).text();
+        var cell2 = $(rows[j]).children("td").eq(column).text();
+        if (column === 2) {
+          cell1 = parseFloat(cell1);
+          cell2 = parseFloat(cell2);
+        }
+        var swap = false;
+        if (asc) {
+          if (cell1 > cell2) swap = true;
+        } else {
+          if (cell1 < cell2) swap = true;
+        }
+        if (swap) {
+          $(rows[j]).insertBefore($(rows[i]));
+          rows = $("#myTable tbody tr");
+        }
+      }
+    }
+    if (asc) {
+      $(this).addClass("asc");
+    } else {
+      $(this).addClass("desc");
+    }
+  });
+});
+</script>
+
+</body>
+</html>
