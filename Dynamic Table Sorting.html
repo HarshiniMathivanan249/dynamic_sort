@@ -2,8 +2,10 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Sortable Table (Very Beginner jQuery)</title>
+  <title>Dynamic Sorting</title>
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
   <style>
     table {
       width: 60%;
@@ -19,16 +21,27 @@
     th {
       background: #eee;
       cursor: pointer;
+      user-select: none; 
     }
-    .asc::after { content: " ↑"; }
-    .desc::after { content: " ↓"; }
+    
+    
+    .asc::after { 
+      content: " ↑"; 
+      color: blue;
+    }
+    .desc::after { 
+      content: " ↓"; 
+      color: red;
+    }
+    
+    
+    th:hover {
+      background: #ddd;
+    }
   </style>
 </head>
 <body>
-
-<h2 style="text-align:center;">Employee Table (Click headers to sort)</h2>
-
-<table id="myTable">
+<table id="employeeTable">
   <thead>
     <tr>
       <th>Name</th>
@@ -42,42 +55,74 @@
     <tr><td>Kavya</td><td>Finance</td><td>50000</td></tr>
     <tr><td>Praveen</td><td>IT</td><td>42000</td></tr>
     <tr><td>Divya</td><td>Sales</td><td>38000</td></tr>
+    <tr><td>Ravi</td><td>Marketing</td><td>35000</td></tr>
+    <tr><td>Sneha</td><td>Finance</td><td>48000</td></tr>
   </tbody>
 </table>
 
+
 <script>
+
 $(document).ready(function() {
-  $("#myTable th").click(function() {
-    var column = $(this).index();
-    var asc = !$(this).hasClass("asc");
-    $("#myTable th").removeClass("asc desc");
-    var rows = $("#myTable tbody tr");
-    for (var i = 0; i < rows.length; i++) {
-      for (var j = i + 1; j < rows.length; j++) {
-        var cell1 = $(rows[i]).children("td").eq(column).text();
-        var cell2 = $(rows[j]).children("td").eq(column).text();
-        if (column === 2) {
-          cell1 = parseFloat(cell1);
-          cell2 = parseFloat(cell2);
+    
+    // Add click event to all table headers
+    $('#employeeTable th').click(function() {
+        
+        // Find which column was clicked
+        var columnIndex = $(this).index(); 
+        
+        // Check current sorting direction
+        var isCurrentlyAscending = $(this).hasClass('asc');
+        var shouldSortAscending = !isCurrentlyAscending; 
+        
+        // Remove sorting arrows
+        $('#employeeTable th').removeClass('asc desc');
+        
+        //Get all the rows we want to sort
+        var allRows = $('#employeeTable tbody tr');
+        
+        // Convert object to array 
+        var rowsArray = allRows.toArray();
+        
+      
+        rowsArray.sort(function(rowA, rowB) {
+            
+            // Get the text from the specific column in both rows
+            var cellA = $(rowA).find('td').eq(columnIndex).text();
+            var cellB = $(rowB).find('td').eq(columnIndex).text();
+            
+            //  Handle numbers differently than text
+            if (columnIndex === 2) { 
+                cellA = parseInt(cellA); // Convert to number
+                cellB = parseInt(cellB);
+            }
+            
+          
+            if (shouldSortAscending) {
+                if (cellA < cellB) return -1; // A comes before B
+                if (cellA > cellB) return 1;  // B comes before A
+                return 0; //  equal
+            } else {
+                if (cellA > cellB) return -1; // B comes before A
+                if (cellA < cellB) return 1;  // A comes before B
+                return 0; // equal
+            }
+        });
+        
+        //Remove all existing rows from the table
+        $('#employeeTable tbody').empty();
+        
+        // Add the sorted rows back to the table
+        for (var i = 0; i < rowsArray.length; i++) {
+            $('#employeeTable tbody').append(rowsArray[i]);
         }
-        var swap = false;
-        if (asc) {
-          if (cell1 > cell2) swap = true;
+      
+        if (shouldSortAscending) {
+            $(this).addClass('asc');
         } else {
-          if (cell1 < cell2) swap = true;
+            $(this).addClass('desc');
         }
-        if (swap) {
-          $(rows[j]).insertBefore($(rows[i]));
-          rows = $("#myTable tbody tr");
-        }
-      }
-    }
-    if (asc) {
-      $(this).addClass("asc");
-    } else {
-      $(this).addClass("desc");
-    }
-  });
+    });
 });
 </script>
 
